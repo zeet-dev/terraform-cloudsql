@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+resource "google_project_service" "cloud_run_api" {
+  service = "run.googleapis.com"
+}
+
 resource "google_compute_network" "private_network" {
   provider = google-beta
 
@@ -36,7 +40,10 @@ resource "google_sql_database_instance" "main" {
   database_version = var.db_version
   region           = var.db_region
 
-  depends_on = [google_service_networking_connection.private_vpc_connection]
+  depends_on = [
+    google_project_service.cloud_run_api,
+    google_service_networking_connection.private_vpc_connection
+  ]
 
   settings {
     tier      = var.db_tier
